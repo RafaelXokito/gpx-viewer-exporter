@@ -1,116 +1,122 @@
-import React, { useEffect, useRef } from "react";
-import * as L from "leaflet";
-import * as toGeoJSON from "togeojson";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  MapboxExportControl,
+  Size,
+  PageOrientation,
+  Format,
+  DPI,
+} from "@watergis/mapbox-gl-export";
+import "@watergis/mapbox-gl-export/css/styles.css";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import "./GPXViewer.css";
-import leafletImage from "leaflet-image";
-import html2canvas from "html2canvas";
-import { fabric } from "fabric";
+import * as toGeoJSON from "togeojson";
+import { useTranslation } from "react-i18next";
+
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN!;
 
 const GPXViewer: React.FC = () => {
-  //const mapRef = useRef(null);
+  const { t, i18n } = useTranslation();
+
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
+  const [map, setMap] = useState<mapboxgl.Map | null>(null);
+  const [colors, setColors] = useState<string[]>([]);
+  const [trackNames, setTrackNames] = useState<string[]>([]);
+  const layersRef = useRef<mapboxgl.Layer[]>([]);
+  const [layers, setLayers] = useState<mapboxgl.Layer[]>([]);
 
-  const [trackBounds, setTrackBounds] = React.useState<L.LatLngBounds | null>(
-    null
-  );
+  interface InitializeMapProps {
+    setMap: React.Dispatch<React.SetStateAction<mapboxgl.Map | null>>;
+    mapContainerRef: React.RefObject<HTMLDivElement>;
+  }
 
-  // Use useEffect to create the map instance once the component is mounted
   useEffect(() => {
-    if (mapContainerRef.current && !mapInstanceRef.current) {
-      const map = L.map(mapContainerRef.current).setView([20, 0], 2);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
-        map
-      );
+    if (!map) {
+      const mapInstance = new mapboxgl.Map({
+        container: mapContainerRef.current!,
+        style: "mapbox://styles/mapbox/satellite-streets-v12",
+        center: [0, 20],
+        zoom: 2,
+      });
 
-      mapInstanceRef.current = map;
+      mapInstance.on("load", () => {
+        setMap(mapInstance);
 
-      // Return a cleanup function
-      return () => {
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.remove();
-          mapInstanceRef.current = null;
-        }
-      };
+        mapInstance.on("click", function (e) {
+          // Remove existing popups
+          var popups = document.getElementsByClassName("mapboxgl-popup");
+          if (popups[0]) popups[0].remove();
+
+          // Query the track layers
+          console.log(layersRef.current.map((layer) => layer.id));
+          var features = mapInstance.queryRenderedFeatures(e.point, {
+            layers: layersRef.current.map((layer) => layer.id), // Use dynamic layer IDs based on the layers state
+          });
+
+          if (!features.length) {
+            return;
+          }
+
+          const feature = features[0];
+          const trackName = feature.properties!.trackName;
+          const totalDistance = feature.properties!.distance;
+
+          // Create a Mapbox popup and display the information
+          new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(
+              `
+                <h3>${trackName}</h3>
+                <p>Distance: ${totalDistance.toFixed(2)} km</p>`
+            )
+            .addTo(mapInstance);
+        });
+
+        // Add the export control after the map has loaded
+        mapInstance.addControl(
+          new MapboxExportControl({
+            PageSize: Size.LETTER,
+            PageOrientation: PageOrientation.Landscape,
+            Format: Format.PNG,
+            DPI: DPI[400],
+            Crosshair: true,
+            PrintableArea: true,
+          }),
+          "top-right"
+        );
+      });
     }
   }, []);
 
-  const [colors, setColors] = React.useState<string[]>([]);
-
-  const [layers, setLayers] = React.useState<L.GeoJSON[]>([]);
-
-  const exportImage = async () => {
-    const mapElement = document.getElementById("map");
-    console.log(mapElement);
-    if (!mapElement) return;
-
-    // 1. Backup the original styles and get the translation values
-    const backupStyles: any = [];
-    const translations = [];
-    const trackElementsWithTransform = mapElement.querySelectorAll(
-      ".leaflet-overlay-pane svg[style*='transform']"
-    );
-
-    trackElementsWithTransform.forEach((element: any, idx) => {
-      const transformValue = element.style.transform;
-      backupStyles[idx] = transformValue;
-
-      const match = transformValue.match(
-        /translate3d\((-?\d+)px, (-?\d+)px, 0px\)/
-      );
-      if (match) {
-        let x = parseInt(match[1], 10);
-        let y = parseInt(match[2], 10);
-
-        // Apply manual correction based on your observations
-        const xOffset = 8; // Adjust as needed
-        const yOffset = 8; // Adjust as needed
-        x += xOffset;
-        y += yOffset;
-
-        translations[idx] = { x, y };
-
-        // 2. Apply the inverse translation in 4K image
-        element.style.transform = `translate3d(-128.26px, -71.28px, 0px)`;
-        // element.style.transform = `translate3d(-28.5px, -6.5px, 0px)`;
-        // element.style.transform=`translate3d(-64.13px, -35.64px, 0px)`;
-        // element.style.transform = `translate3d(50px, 0px, 0px)`;
-      }
-    });
-
-    // Capture the image
-    html2canvas(mapElement, {
-      allowTaint: true,
-      useCORS: true,
-    }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = imgData;
-      link.download = "map.png";
-      link.click();
-
-      // 3. Restore the original styles
-      trackElementsWithTransform.forEach((element: any, idx) => {
-        element.style.transform = backupStyles[idx];
-      });
-    });
+  const changeLanguage = (lng: any) => {
+    i18n.changeLanguage(lng);
   };
+
+  function formatDateFromTrackName(trackName: String) {
+    // Extract the date string from the beginning of the trackName
+    const dateString = trackName.slice(0, 8);
+
+    // Extract the day, month, and year from the dateString
+    const day = dateString.slice(6, 8);
+    const month = dateString.slice(4, 6);
+    const year = dateString.slice(0, 4);
+
+    const restString = trackName.slice(9);
+
+    // Return the formatted date
+    return `${day}/${month}/${year} - ${restString}`;
+  }
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (!files.length || !mapContainerRef.current) return;
+    if (!files.length || !map) return;
 
-    // Duplicate the first file if only one is present
-    if (files.length === 1) {
-      const file = files[0];
-      files.push(file);
-    }
-
-    // Initialize colors array based on the number of selected files
-    const initialColors = Array.from(files).map(() => "#000000"); // default to black
+    const initialColors = Array.from(files).map(() => "#0c40eb");
     setColors(initialColors);
 
-    let bounds: L.LatLngBounds | null = null;
+    let bounds = new mapboxgl.LngLatBounds();
 
     Array.from(files).forEach((file, idx) => {
       const reader = new FileReader();
@@ -122,60 +128,61 @@ const GPXViewer: React.FC = () => {
         );
         const geojson = toGeoJSON.gpx(xmlDoc);
 
-        // 1. Extract the name
-        const trackName = geojson.features[0].properties.name;
+        const trackName = formatDateFromTrackName(
+          geojson.features[0].properties.name
+        );
 
-        // 2. Calculate the distance
         let totalDistance = 0;
-        let previousCoord: L.LatLng | null = null;
+        let previousCoord: mapboxgl.LngLat | null = null;
+
         geojson.features[0].geometry.coordinates.forEach(
           (coord: [number, number]) => {
-            const currentCoord = L.latLng(coord[1], coord[0]);
+            const currentCoord = new mapboxgl.LngLat(coord[0], coord[1]);
             if (previousCoord) {
               totalDistance += previousCoord.distanceTo(currentCoord);
             }
             previousCoord = currentCoord;
           }
         );
-        // Convert the distance from meters to kilometers
         totalDistance = totalDistance / 1000;
 
-        var myStyle = {
-          // Define your style object
-          color: initialColors[idx],
-        };
+        geojson.features[0].properties.trackName = trackName; // set the distance property
+        trackNames.push(trackName);
+        geojson.features[0].properties.distance = totalDistance; // set the distance property
 
-        const newLayer = L.geoJSON(geojson, {
-          style: myStyle,
-          onEachFeature: function (feature, layer) {
-            // 3. Update the popup
-            layer.bindPopup(
-              `${trackName}<br>Distance: ${totalDistance.toFixed(2)} km`
-            );
+        map!.addLayer({
+          id: `track-${idx}`,
+          type: "line",
+          source: {
+            type: "geojson",
+            data: geojson,
           },
-        }).addTo(mapInstanceRef.current!);
+          layout: {},
+          paint: {
+            "line-color": initialColors[idx],
+            "line-width": 3,
+          },
+        });
 
-        setLayers((prevLayers) => [...prevLayers, newLayer as L.GeoJSON]);
+        setLayers((prevLayers) => {
+          const updatedLayers = [
+            ...prevLayers,
+            { id: `track-${idx}`, type: "line" },
+          ];
+          layersRef.current = updatedLayers; // Update the ref
+          return updatedLayers;
+        });
 
         geojson.features.forEach((feature: any) => {
           if (feature.geometry && feature.geometry.coordinates) {
             feature.geometry.coordinates.forEach((coord: [number, number]) => {
-              if (!bounds) {
-                bounds = L.latLngBounds(
-                  [coord[1], coord[0]],
-                  [coord[1], coord[0]]
-                );
-              } else {
-                bounds.extend([coord[1], coord[0]]);
-              }
+              bounds.extend(coord);
             });
           }
         });
 
-        setTrackBounds(bounds);
-
-        if (bounds && bounds.isValid()) {
-          mapInstanceRef.current!.fitBounds(bounds);
+        if (bounds && !bounds.isEmpty()) {
+          map!.fitBounds(bounds);
         }
       };
       reader.readAsText(file);
@@ -183,32 +190,68 @@ const GPXViewer: React.FC = () => {
   };
 
   return (
-    <div>
-      <input type="file" multiple onChange={handleFiles} />
+    <div className="container">
+      {/* Sidebar */}
+      <div className="sidebar">
+        {/* File Input Section */}
+        <section className="file-input-section">
+          <h3>{t("ImportTracks")}</h3>
+          {/* Hidden file input */}
+          <input
+            type="file"
+            multiple
+            onChange={handleFiles}
+            id="hiddenFileInput"
+            style={{ display: "none" }}
+          />
+          {/* Visible import button */}
+          <button
+            onClick={() => document.getElementById("hiddenFileInput")!.click()}
+          >
+            {t("ImportFiles")}
+          </button>
+        </section>
 
-      {colors.map((color, idx) => (
-        <input
-          key={idx}
-          type="color"
-          value={color}
-          onChange={(e) => {
-            const newColor = e.target.value;
-            const newColors = [...colors];
-            newColors[idx] = newColor;
-            setColors(newColors);
+        {/* Files List */}
+        <section className="files-list-section">
+          <h3>{t("UploadedTracks")}</h3>
+          <ul>
+            {colors.map((color, idx) => (
+              <li key={idx} style={{ color: color }}>
+                <span>
+                  {/* Replace with your actual track name variable */}
+                  {trackNames[idx]}
+                </span>
+                <input
+                  type="color"
+                  value={color}
+                  onChange={(e) => {
+                    const newColor = e.target.value;
+                    const newColors = [...colors];
+                    newColors[idx] = newColor;
+                    setColors(newColors);
 
-            // Update the style of the associated layer
-            if (layers[idx]) {
-              layers[idx].setStyle({
-                color: newColor,
-              });
-            }
-          }}
-        />
-      ))}
+                    if (layers[idx]) {
+                      map!.setPaintProperty(
+                        layers[idx].id,
+                        "line-color",
+                        newColor
+                      );
+                    }
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+        {/* Language Switch */}
+        <div className="language-switch">
+          <button onClick={() => changeLanguage("en")}>🇬🇧 English</button>
+          <button onClick={() => changeLanguage("pt")}>🇵🇹 Português</button>
+        </div>
+      </div>
 
-      <button onClick={exportImage}>Export to 4K</button>
-
+      {/* Map */}
       <div id="map" ref={mapContainerRef} className="map"></div>
     </div>
   );
