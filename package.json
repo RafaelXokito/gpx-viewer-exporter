@@ -1,6 +1,7 @@
 {
   "name": "gpx-viewer",
   "version": "0.1.0",
+  "homepage": "https://rafaelxokito.github.io/gpx-viewer-exporter/",
   "private": true,
   "dependencies": {
     "@mapbox/mapbox-gl-draw": "^1.4.3",
