@@ -35,7 +35,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -56,6 +58,7 @@
     ]
   },
   "devDependencies": {
-    "@types/mapbox-gl": "^2.7.15"
+    "@types/mapbox-gl": "^2.7.15",
+    "gh-pages": "^6.0.0"
   }
 }
