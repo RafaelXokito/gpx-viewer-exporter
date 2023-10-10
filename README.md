@@ -4,7 +4,7 @@
 
 Capture the world in high definition with **GpxViewer**. From hiking trails to city streets, experience maps like never before.
 
-![Demonstration Video](https://www.youtube.com/watch?v=9RtvAaMmuvo)
+[Demonstration Video](https://www.youtube.com/watch?v=9RtvAaMmuvo)
 
 ## 🚀 Features
 
