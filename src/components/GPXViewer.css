@@ -67,6 +67,7 @@ button:hover {
 }
 
 .language-switch {
+  min-width: 300px;
   display: flex;
   justify-content: space-between; /* Evenly spaces the buttons */
   margin: 0 16px 50px 16px; /* 50px margin-bottom added */
@@ -132,6 +133,11 @@ li::before {
   height: 100%;
   background: #fff;
   z-index: 10;  /* Ensures it appears above other content */
+
+  display: flex;
+  flex-direction: column;  /* To align children vertically */
+  justify-content: center; /* Vertically center content */
+  align-items: center;     /* Horizontally center content */
 }
 
 .sidebar.open {
