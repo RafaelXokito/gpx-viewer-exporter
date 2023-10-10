@@ -17,12 +17,12 @@ Capture the world in high definition with **GpxViewer**. From hiking trails to c
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/RafaelXokito/GpxViewer.git
+git clone https://github.com/RafaelXokito/gpx-viewer-exporter.git
 ```
 
 2. Move to the project directory:
 ```bash
-cd GpxViewer
+cd gpx-viewer-exporter
 ```
 
 3. Install dependencies:
