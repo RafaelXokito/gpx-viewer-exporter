@@ -17,10 +17,10 @@ import { useTranslation } from "react-i18next";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN!;
 
-
 // @ts-ignore
 // eslint-disable-next-line import/no-webpack-loader-syntax
-mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
+mapboxgl.workerClass =
+  require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
 const GPXViewer: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -90,7 +90,7 @@ const GPXViewer: React.FC = () => {
         );
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const changeLanguage = (lng: any) => {
@@ -185,21 +185,36 @@ const GPXViewer: React.FC = () => {
         });
 
         if (bounds && !bounds.isEmpty()) {
-          map!.fitBounds(bounds);
+          map!.fitBounds(bounds, {
+            padding: {
+              top: 50,
+              bottom: 50,
+              left: 50,
+              right: 50,
+            },
+          });
         }
       };
       reader.readAsText(file);
     });
+
+    if (isSidebarOpen) {
+      setIsSidebarOpen(!isSidebarOpen);
+    }
   };
 
   return (
     <div>
-      <button id="sidebarToggle" className="sidebar-toggle" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+      <button
+        id="sidebarToggle"
+        className="sidebar-toggle"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
         ☰ Menu
       </button>
       <div className="container">
         {/* Sidebar */}
-        <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
           {/* File Input Section */}
           <section className="file-input-section">
             <h3>{t("ImportTracks")}</h3>
