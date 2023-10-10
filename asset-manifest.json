@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/gpx-viewer-exporter/static/css/main.d24afe56.css",
-    "main.js": "/gpx-viewer-exporter/static/js/main.65eaf633.js",
+    "main.css": "/gpx-viewer-exporter/static/css/main.f634a2cb.css",
+    "main.js": "/gpx-viewer-exporter/static/js/main.12d209cd.js",
     "static/js/498.7e1047ac.chunk.js": "/gpx-viewer-exporter/static/js/498.7e1047ac.chunk.js",
     "static/js/703.4fcdcf4d.chunk.js": "/gpx-viewer-exporter/static/js/703.4fcdcf4d.chunk.js",
     "static/js/635.f43c8bbf.chunk.js": "/gpx-viewer-exporter/static/js/635.f43c8bbf.chunk.js",
     "static/js/787.d66f3c46.chunk.js": "/gpx-viewer-exporter/static/js/787.d66f3c46.chunk.js",
     "index.html": "/gpx-viewer-exporter/index.html",
     "static/media/getFetch.cjs": "/gpx-viewer-exporter/static/media/getFetch.40f37ddea2378391108f.cjs",
-    "main.d24afe56.css.map": "/gpx-viewer-exporter/static/css/main.d24afe56.css.map",
-    "main.65eaf633.js.map": "/gpx-viewer-exporter/static/js/main.65eaf633.js.map",
+    "main.f634a2cb.css.map": "/gpx-viewer-exporter/static/css/main.f634a2cb.css.map",
+    "main.12d209cd.js.map": "/gpx-viewer-exporter/static/js/main.12d209cd.js.map",
     "498.7e1047ac.chunk.js.map": "/gpx-viewer-exporter/static/js/498.7e1047ac.chunk.js.map",
     "703.4fcdcf4d.chunk.js.map": "/gpx-viewer-exporter/static/js/703.4fcdcf4d.chunk.js.map",
     "635.f43c8bbf.chunk.js.map": "/gpx-viewer-exporter/static/js/635.f43c8bbf.chunk.js.map",
     "787.d66f3c46.chunk.js.map": "/gpx-viewer-exporter/static/js/787.d66f3c46.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.d24afe56.css",
-    "static/js/main.65eaf633.js"
+    "static/css/main.f634a2cb.css",
+    "static/js/main.12d209cd.js"
   ]
 }
