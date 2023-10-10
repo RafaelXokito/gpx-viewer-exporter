@@ -28,6 +28,7 @@ const GPXViewer: React.FC = () => {
   const [layers, setLayers] = useState<mapboxgl.Layer[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!map) {
       const mapInstance = new mapboxgl.Map({
