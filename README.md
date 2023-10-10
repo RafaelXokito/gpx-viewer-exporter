@@ -1,6 +1,6 @@
 # 🌍 GpxViewer
 
-![App Screenshot](./public/demo.png)
+![App Screenshot](./public/demo2.png)
 
 Capture the world in high definition with **GpxViewer**. From hiking trails to city streets, experience maps like never before.
 
