@@ -181,3 +181,7 @@ h3 {
 .file-input-section, .files-list-section {
   padding: 10px;
 }
+
+.generate-button {
+  color: black !important;
+}
