@@ -17,6 +17,11 @@ import { useTranslation } from "react-i18next";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN!;
 
+
+// @ts-ignore
+// eslint-disable-next-line import/no-webpack-loader-syntax
+mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
+
 const GPXViewer: React.FC = () => {
   const { t, i18n } = useTranslation();
 
