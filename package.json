@@ -1,7 +1,7 @@
 {
   "name": "gpx-viewer",
   "version": "0.1.0",
-  "homepage": "https://rafaelxokito.github.io/gpx-viewer-exporter/",
+  "homepage": "https://gpxviewer.netlify.app/",
   "private": true,
   "dependencies": {
     "@babel/plugin-transform-private-property-in-object": "^7.22.11",
