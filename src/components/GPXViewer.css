@@ -28,10 +28,6 @@ body, html {
 
 .map {
   flex: 1;
-  height: 100vh;
-}
-
-.map {
   width: 100vw;
   height: 100vh;
   margin: 0;
@@ -122,4 +118,60 @@ li::before {
   margin-right: 10px;
   vertical-align: middle;
   transition: background-color 0.2s;
+}
+
+/* Mobile styles as default */
+.sidebar {
+  width: 100%;
+  max-width: 500px;
+  transform: translateX(-100%);  /* By default the sidebar is hidden */
+  transition: transform 0.3s ease; /* Transition for smooth animation */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #fff;
+  z-index: 10;  /* Ensures it appears above other content */
+}
+
+.sidebar.open {
+  transform: translateX(0);  /* Sidebar becomes visible */
+}
+
+.sidebar-toggle {
+  display: block;  /* Display the toggle button by default */
+  z-index: 11; /* Keep the button above the sidebar */
+  position: fixed;
+  top: 10px;
+  left: 10px;
+}
+
+/* Desktop styles */
+@media (min-width: 768px) {
+  .sidebar {
+      transform: translateX(0);
+      position: relative;
+      height: auto;
+      border-right: 1px solid #ccc;
+  }
+
+  .sidebar-toggle {
+      display: none;  /* Hide the toggle button on desktop */
+  }
+}
+
+button {
+  padding: 12px 20px;
+}
+
+body {
+  font-size: 16px;
+}
+
+h3 {
+  font-size: 24px;
+}
+
+.file-input-section, .files-list-section {
+  padding: 10px;
 }

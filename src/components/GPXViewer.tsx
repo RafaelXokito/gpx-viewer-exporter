@@ -23,14 +23,10 @@ const GPXViewer: React.FC = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [map, setMap] = useState<mapboxgl.Map | null>(null);
   const [colors, setColors] = useState<string[]>([]);
-  const [trackNames, setTrackNames] = useState<string[]>([]);
+  const [trackNames] = useState<string[]>([]);
   const layersRef = useRef<mapboxgl.Layer[]>([]);
   const [layers, setLayers] = useState<mapboxgl.Layer[]>([]);
-
-  interface InitializeMapProps {
-    setMap: React.Dispatch<React.SetStateAction<mapboxgl.Map | null>>;
-    mapContainerRef: React.RefObject<HTMLDivElement>;
-  }
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!map) {
@@ -190,69 +186,76 @@ const GPXViewer: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      {/* Sidebar */}
-      <div className="sidebar">
-        {/* File Input Section */}
-        <section className="file-input-section">
-          <h3>{t("ImportTracks")}</h3>
-          {/* Hidden file input */}
-          <input
-            type="file"
-            multiple
-            onChange={handleFiles}
-            id="hiddenFileInput"
-            style={{ display: "none" }}
-          />
-          {/* Visible import button */}
-          <button
-            onClick={() => document.getElementById("hiddenFileInput")!.click()}
-          >
-            {t("ImportFiles")}
-          </button>
-        </section>
+    <div>
+      <button id="sidebarToggle" className="sidebar-toggle" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+        ☰ Menu
+      </button>
+      <div className="container">
+        {/* Sidebar */}
+        <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+          {/* File Input Section */}
+          <section className="file-input-section">
+            <h3>{t("ImportTracks")}</h3>
+            {/* Hidden file input */}
+            <input
+              type="file"
+              multiple
+              onChange={handleFiles}
+              id="hiddenFileInput"
+              style={{ display: "none" }}
+            />
+            {/* Visible import button */}
+            <button
+              onClick={() =>
+                document.getElementById("hiddenFileInput")!.click()
+              }
+            >
+              {t("ImportFiles")}
+            </button>
+          </section>
 
-        {/* Files List */}
-        <section className="files-list-section">
-          <h3>{t("UploadedTracks")}</h3>
-          <ul>
-            {colors.map((color, idx) => (
-              <li key={idx} style={{ color: color }}>
-                <span>
-                  {/* Replace with your actual track name variable */}
-                  {trackNames[idx]}
-                </span>
-                <input
-                  type="color"
-                  value={color}
-                  onChange={(e) => {
-                    const newColor = e.target.value;
-                    const newColors = [...colors];
-                    newColors[idx] = newColor;
-                    setColors(newColors);
+          {/* Files List */}
+          <section className="files-list-section">
+            <h3>{t("UploadedTracks")}</h3>
+            <ul>
+              {colors.map((color, idx) => (
+                <li key={idx} style={{ color: color }}>
+                  <span>
+                    {/* Replace with your actual track name variable */}
+                    {trackNames[idx]}
+                  </span>
+                  <input
+                    type="color"
+                    value={color}
+                    onChange={(e) => {
+                      const newColor = e.target.value;
+                      const newColors = [...colors];
+                      newColors[idx] = newColor;
+                      setColors(newColors);
 
-                    if (layers[idx]) {
-                      map!.setPaintProperty(
-                        layers[idx].id,
-                        "line-color",
-                        newColor
-                      );
-                    }
-                  }}
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-        {/* Language Switch */}
-        <div className="language-switch">
-          <button onClick={() => changeLanguage("en")}>🇬🇧 English</button>
-          <button onClick={() => changeLanguage("pt")}>🇵🇹 Português</button>
+                      if (layers[idx]) {
+                        map!.setPaintProperty(
+                          layers[idx].id,
+                          "line-color",
+                          newColor
+                        );
+                      }
+                    }}
+                  />
+                </li>
+              ))}
+            </ul>
+          </section>
+          {/* Language Switch */}
+          <div className="language-switch">
+            <button onClick={() => changeLanguage("en")}>🇬🇧 English</button>
+            <button onClick={() => changeLanguage("pt")}>🇵🇹 Português</button>
+          </div>
         </div>
-      </div>
 
-      {/* Map */}
-      <div id="map" ref={mapContainerRef} className="map"></div>
+        {/* Map */}
+        <div id="map" ref={mapContainerRef} className="map"></div>
+      </div>
     </div>
   );
 };
