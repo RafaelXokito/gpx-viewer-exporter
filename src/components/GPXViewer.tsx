@@ -43,7 +43,7 @@ const GPXViewer: React.FC = () => {
     return savedColors ? savedColors : [];
   });
 
-  const [trackNames, setTrackNames] = useState<string[]>(() => {
+  const [trackNames] = useState<string[]>(() => {
     const savedTrackNames = loadStateFromLocalStorage("trackNames");
     return savedTrackNames ? savedTrackNames : [];
   });
@@ -58,14 +58,14 @@ const GPXViewer: React.FC = () => {
     return savedIsSidebarOpen !== undefined ? savedIsSidebarOpen : false;
   });
 
-  const [allGeoJSONData, setAllGeoJSONData] = useState<
+  const [allGeoJSONData] = useState<
     GeoJSON.FeatureCollection[]
   >(() => {
     const savedAllGeoJSONData = loadStateFromLocalStorage("allGeoJSONData");
     return savedAllGeoJSONData || [];
   });
 
-  const [bounds, setBounds] = useState<mapboxgl.LngLatBounds | null>(() => {
+  const [bounds] = useState<mapboxgl.LngLatBounds | null>(() => {
     const savedBounds = loadStateFromLocalStorage("bounds");
     return savedBounds
       ? new mapboxgl.LngLatBounds(savedBounds[0], savedBounds[1])
