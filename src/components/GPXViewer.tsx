@@ -317,31 +317,33 @@ const GPXViewer: React.FC = () => {
     // Clear local storage
     localStorage.clear();
 
-    // Reset the map view to some default
-    if (map) {
-      map.flyTo({
-        center: [0, 20], // Default center
-        zoom: 2, // Default zoom level
-      });
+    window.location.reload();
 
-      // Remove all custom layers, sources, etc. from the map if needed
-      layers.forEach((layer) => {
-        if (map.getLayer(layer.id)) {
-          map.removeLayer(layer.id);
-        }
-        if (map.getSource(layer.id)) {
-          map.removeSource(layer.id);
-        }
-      });
-    }
+    // // Reset the map view to some default
+    // if (map) {
+    //   map.flyTo({
+    //     center: [0, 20], // Default center
+    //     zoom: 2, // Default zoom level
+    //   });
 
-    // Reset the state
-    setColors([]);
-    setLayers([]);
-    setTrackNames([]);
-    setBounds(new mapboxgl.LngLatBounds()); // Or set to some default bounds
-    setIsSidebarOpen(false);
-    setAllGeoJSONData([]);
+    //   // Remove all custom layers, sources, etc. from the map if needed
+    //   layers.forEach((layer) => {
+    //     if (map.getLayer(layer.id)) {
+    //       map.removeLayer(layer.id);
+    //     }
+    //     if (map.getSource(layer.id)) {
+    //       map.removeSource(layer.id);
+    //     }
+    //   });
+    // }
+
+    // // Reset the state
+    // setColors([]);
+    // setLayers([]);
+    // setTrackNames([]);
+    // setBounds(new mapboxgl.LngLatBounds()); // Or set to some default bounds
+    // setIsSidebarOpen(false);
+    // setAllGeoJSONData([]);
   };
 
   const updateBoundsToFitAllTracks = () => {
