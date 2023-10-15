@@ -14,8 +14,15 @@ import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import "./GPXViewer.css";
 import * as toGeoJSON from "togeojson";
 import { useTranslation } from "react-i18next";
+import ImageDropdown from "./ImageDropdown";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN!;
+
+interface OptionType {
+  name: string;
+  style: string;
+  thumbnail: string;
+}
 
 // @ts-ignore
 // eslint-disable-next-line import/no-webpack-loader-syntax
@@ -58,9 +65,7 @@ const GPXViewer: React.FC = () => {
     return savedIsSidebarOpen !== undefined ? savedIsSidebarOpen : false;
   });
 
-  const [allGeoJSONData] = useState<
-    GeoJSON.FeatureCollection[]
-  >(() => {
+  const [allGeoJSONData] = useState<GeoJSON.FeatureCollection[]>(() => {
     const savedAllGeoJSONData = loadStateFromLocalStorage("allGeoJSONData");
     return savedAllGeoJSONData || [];
   });
@@ -76,6 +81,56 @@ const GPXViewer: React.FC = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [map, setMap] = useState<mapboxgl.Map | null>(null);
   const layersRef = useRef<mapboxgl.Layer[]>([]);
+
+  const mapStyles = [
+    {
+      name: "Streets",
+      style: "mapbox://styles/mapbox/streets-v12",
+      thumbnail: "/MapboxStreets.png",
+    },
+    {
+      name: "Outdoors",
+      style: "mapbox://styles/mapbox/outdoors-v12",
+      thumbnail: "/MapboxOutdoors.png",
+    },
+    {
+      name: "Light",
+      style: "mapbox://styles/mapbox/light-v11",
+      thumbnail: "/MapboxLight.png",
+    },
+    {
+      name: "Dark",
+      style: "mapbox://styles/mapbox/dark-v11",
+      thumbnail: "/MapboxDark.png",
+    },
+    {
+      name: "Satellite",
+      style: "mapbox://styles/mapbox/satellite-v9",
+      thumbnail: "/MapboxSatellite.png",
+    },
+    {
+      name: "Satellite Streets",
+      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      thumbnail: "/MapboxSatelliteStreets.png",
+    },
+    {
+      name: "Navigation Day",
+      style: "mapbox://styles/mapbox/navigation-day-v1",
+      thumbnail: "/MapboxNavigationDay.png",
+    },
+    {
+      name: "Navigation Night",
+      style: "mapbox://styles/mapbox/navigation-night-v1",
+      thumbnail: "/MapboxNavigationNight.png",
+    },
+  ];
+
+  const getInitialMapStyle = () => {
+    const storedStyle = localStorage.getItem("selectedMapStyle");
+    return storedStyle ? JSON.parse(storedStyle) : mapStyles[0];
+  };
+
+  const [selectedMapStyle, setSelectedMapStyle] = useState(getInitialMapStyle);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -95,6 +150,10 @@ const GPXViewer: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, trackNames, layers, isSidebarOpen, bounds]);
+
+  useEffect(() => {
+    localStorage.setItem('selectedMapStyle', JSON.stringify(selectedMapStyle));
+  }, [selectedMapStyle]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -128,7 +187,7 @@ const GPXViewer: React.FC = () => {
   const initializeMap = () => {
     const mapInstance = new mapboxgl.Map({
       container: mapContainerRef.current!,
-      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      style: selectedMapStyle.style,
       center: [0, 20],
       zoom: 2,
     });
@@ -393,6 +452,17 @@ const GPXViewer: React.FC = () => {
     }
   };
 
+  const changeMapStyle = (selectedStyle: OptionType) => {
+    if (map) {
+      map.setStyle(selectedStyle.style);
+      setSelectedMapStyle(selectedStyle);
+      saveStateToLocalStorage(
+        "selectedMapStyle",
+        JSON.stringify(selectedMapStyle)
+      );
+    }
+  };
+
   return (
     <div>
       <button
@@ -405,6 +475,15 @@ const GPXViewer: React.FC = () => {
       <div className="container">
         {/* Sidebar */}
         <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
+          {/* Change Map Style Section */}
+          <section className="map-style-section">
+            <h3>{t("ChangeStyle")}</h3>
+            <ImageDropdown
+              options={mapStyles}
+              selectedOption={selectedMapStyle}
+              onSelect={changeMapStyle}
+            />
+          </section>
           {/* File Input Section */}
           <section className="file-input-section">
             <h3>{t("ImportTracks")}</h3>
