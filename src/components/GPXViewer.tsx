@@ -43,7 +43,7 @@ const GPXViewer: React.FC = () => {
     return savedColors ? savedColors : [];
   });
 
-  const [trackNames] = useState<string[]>(() => {
+  const [trackNames, setTrackNames] = useState<string[]>(() => {
     const savedTrackNames = loadStateFromLocalStorage("trackNames");
     return savedTrackNames ? savedTrackNames : [];
   });
@@ -112,7 +112,7 @@ const GPXViewer: React.FC = () => {
       addLayerToMap(geojson, trackIndex, color);
     });
 
-    if (map && bounds) {
+    if (map && bounds && bounds.getSouthWest().lng !== 0) {
       map.fitBounds(bounds, {
         padding: {
           top: 50,
@@ -338,6 +338,7 @@ const GPXViewer: React.FC = () => {
     // Reset the state
     setColors([]);
     setLayers([]);
+    setTrackNames([]);
     setBounds(new mapboxgl.LngLatBounds()); // Or set to some default bounds
     setIsSidebarOpen(false);
     setAllGeoJSONData([]);
@@ -447,7 +448,7 @@ const GPXViewer: React.FC = () => {
             <button onClick={() => changeLanguage("en")}>🇬🇧 English</button>
             <button onClick={() => changeLanguage("pt")}>🇵🇹 Português</button>
           </div>
-          <button onClick={handleReset}>Reset Map</button>
+          <button onClick={handleReset}>{t("ResetMap")}</button>
         </div>
 
         {/* Map */}
